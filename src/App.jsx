@@ -10,10 +10,12 @@ const INSTRUMENTS = [
 
 function App() {
   const [stageItems, setStageItems] = useState([]);
-  const [draggedId, setDraggedId] = useState(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedInstrument, setSelectedInstrument] = useState(null);
   const stageRef = useRef(null);
+
+  // Drag state refs for moving icons
+  const draggedIdRef = useRef(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
 
   // Click an instrument to select it
   const handlePaletteClick = (inst) => {
@@ -41,12 +43,12 @@ function App() {
   // Start dragging an existing icon
   const handleIconMouseDown = (e, id) => {
     e.stopPropagation();
-    setDraggedId(id);
+    draggedIdRef.current = id;
     const item = stageItems.find((item) => item.id === id);
-    setDragOffset({
+    dragOffsetRef.current = {
       x: e.clientX - item.x,
       y: e.clientY - item.y,
-    });
+    };
     window.addEventListener("mousemove", handleIconMove);
     window.addEventListener("mouseup", handleIconUp);
   };
@@ -55,11 +57,11 @@ function App() {
   const handleIconMove = (e) => {
     setStageItems((items) =>
       items.map((item) =>
-        item.id === draggedId
+        item.id === draggedIdRef.current
           ? {
               ...item,
-              x: e.clientX - dragOffset.x,
-              y: e.clientY - dragOffset.y,
+              x: e.clientX - dragOffsetRef.current.x,
+              y: e.clientY - dragOffsetRef.current.y,
             }
           : item
       )
@@ -68,7 +70,8 @@ function App() {
 
   // Drop existing icon
   const handleIconUp = () => {
-    setDraggedId(null);
+    draggedIdRef.current = null;
+    dragOffsetRef.current = { x: 0, y: 0 };
     window.removeEventListener("mousemove", handleIconMove);
     window.removeEventListener("mouseup", handleIconUp);
   };
@@ -116,7 +119,7 @@ function App() {
           overflow: "hidden",
           cursor: selectedInstrument
             ? "crosshair"
-            : draggedId
+            : draggedIdRef.current
             ? "grabbing"
             : "pointer",
         }}
@@ -132,9 +135,11 @@ function App() {
               cursor: "grab",
               fontSize: 48,
               userSelect: "none",
-              zIndex: draggedId === item.id ? 2 : 1,
-              transition: draggedId === item.id ? "none" : "box-shadow 0.2s",
-              boxShadow: draggedId === item.id ? "0 4px 16px #aaa" : "none",
+              zIndex: draggedIdRef.current === item.id ? 2 : 1,
+              transition:
+                draggedIdRef.current === item.id ? "none" : "box-shadow 0.2s",
+              boxShadow:
+                draggedIdRef.current === item.id ? "0 4px 16px #aaa" : "none",
             }}
             onMouseDown={(e) => handleIconMouseDown(e, item.id)}
           >
