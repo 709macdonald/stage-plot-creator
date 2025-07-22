@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import "./App.css";
 import InstrumentPalette from "./components/InstrumentPalette.jsx";
 import Stage from "./components/Stage.jsx";
-// Import all SVGs as React components
 import BoomMicStand from "./SVGIcons/Boom Mic Stand.svg?react";
 import RoundBaseMicStand from "./SVGIcons/Round Base Mic Stand.svg?react";
 import DIBox from "./SVGIcons/DI box.svg?react";
@@ -21,47 +20,89 @@ import DrumKit from "./SVGIcons/Drum Kit.svg?react";
 import ElectricGuitar from "./SVGIcons/Electric Guitar.svg?react";
 import AcousticGuitar from "./SVGIcons/Acoustic Guitar.svg?react";
 
-const INSTRUMENTS = [
+const INSTRUMENT_CATEGORIES = [
   {
-    name: "Boom Mic Stand",
-    icon: <BoomMicStand style={{ width: 32, height: 32 }} />,
+    name: "Gear",
+    items: [
+      {
+        name: "Boom Mic Stand",
+        icon: <BoomMicStand style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Round Base Mic Stand",
+        icon: <RoundBaseMicStand style={{ width: 32, height: 32 }} />,
+      },
+      { name: "DI Box", icon: <DIBox style={{ width: 32, height: 32 }} /> },
+      { name: "FX Unit", icon: <FXUnit style={{ width: 32, height: 32 }} /> },
+      { name: "Shure 57", icon: <Shure57 style={{ width: 32, height: 32 }} /> },
+      { name: "Shure 58", icon: <Shure58 style={{ width: 32, height: 32 }} /> },
+    ],
   },
   {
-    name: "Round Base Mic Stand",
-    icon: <RoundBaseMicStand style={{ width: 32, height: 32 }} />,
-  },
-  { name: "DI Box", icon: <DIBox style={{ width: 32, height: 32 }} /> },
-  { name: "Stack Amp", icon: <StackAmp style={{ width: 32, height: 32 }} /> },
-  { name: "Combo Amp", icon: <ComboAmp style={{ width: 32, height: 32 }} /> },
-  { name: "FX Unit", icon: <FXUnit style={{ width: 32, height: 32 }} /> },
-  {
-    name: "Double Stack Amp",
-    icon: <DoubleStackAmp style={{ width: 32, height: 32 }} />,
-  },
-  {
-    name: "Grand Piano",
-    icon: <GrandPiano style={{ width: 32, height: 32 }} />,
-  },
-  { name: "Keyboard", icon: <Keyboard style={{ width: 32, height: 32 }} /> },
-  { name: "Saxophone", icon: <Saxophone style={{ width: 32, height: 32 }} /> },
-  { name: "Shure 57", icon: <Shure57 style={{ width: 32, height: 32 }} /> },
-  { name: "Shure 58", icon: <Shure58 style={{ width: 32, height: 32 }} /> },
-  {
-    name: "Bass Guitar",
-    icon: <BassGuitar style={{ width: 32, height: 32 }} />,
+    name: "Amps",
+    items: [
+      {
+        name: "Stack Amp",
+        icon: <StackAmp style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Combo Amp",
+        icon: <ComboAmp style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Double Stack Amp",
+        icon: <DoubleStackAmp style={{ width: 32, height: 32 }} />,
+      },
+    ],
   },
   {
-    name: "Jazz Guitar",
-    icon: <JazzGuitar style={{ width: 32, height: 32 }} />,
+    name: "Strings",
+    items: [
+      {
+        name: "Bass Guitar",
+        icon: <BassGuitar style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Jazz Guitar",
+        icon: <JazzGuitar style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Electric Guitar",
+        icon: <ElectricGuitar style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Acoustic Guitar",
+        icon: <AcousticGuitar style={{ width: 32, height: 32 }} />,
+      },
+    ],
   },
-  { name: "Drum Kit", icon: <DrumKit style={{ width: 32, height: 32 }} /> },
   {
-    name: "Electric Guitar",
-    icon: <ElectricGuitar style={{ width: 32, height: 32 }} />,
+    name: "Percussion",
+    items: [
+      { name: "Drum Kit", icon: <DrumKit style={{ width: 32, height: 32 }} /> },
+    ],
   },
   {
-    name: "Acoustic Guitar",
-    icon: <AcousticGuitar style={{ width: 32, height: 32 }} />,
+    name: "Keys",
+    items: [
+      {
+        name: "Grand Piano",
+        icon: <GrandPiano style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Keyboard",
+        icon: <Keyboard style={{ width: 32, height: 32 }} />,
+      },
+    ],
+  },
+  {
+    name: "Other",
+    items: [
+      {
+        name: "Saxophone",
+        icon: <Saxophone style={{ width: 32, height: 32 }} />,
+      },
+    ],
   },
 ];
 
@@ -137,7 +178,7 @@ function App() {
     <div className="app-container" style={{ padding: 32 }}>
       <h1>Stage Plot Creator</h1>
       <InstrumentPalette
-        instruments={INSTRUMENTS}
+        categories={INSTRUMENT_CATEGORIES}
         selectedInstrument={selectedInstrument}
         onSelect={handlePaletteClick}
       />
