@@ -2,23 +2,23 @@ import { useState, useRef } from "react";
 import "./App.css";
 import InstrumentPalette from "./components/InstrumentPalette.jsx";
 import Stage from "./components/Stage.jsx";
-import BoomMicStand from "./SVGIcons/Boom Mic Stand.svg?react";
-import RoundBaseMicStand from "./SVGIcons/Round Base Mic Stand.svg?react";
-import DIBox from "./SVGIcons/DI box.svg?react";
-import StackAmp from "./SVGIcons/Stack Amp.svg?react";
-import ComboAmp from "./SVGIcons/Combo Amp.svg?react";
-import FXUnit from "./SVGIcons/FX unit.svg?react";
-import DoubleStackAmp from "./SVGIcons/Double Stack Amp.svg?react";
-import GrandPiano from "./SVGIcons/Grand Piano.svg?react";
+import BoomMicStand from "./SVGIcons/BoomMicStand.svg?react";
+import RoundBaseMicStand from "./SVGIcons/RoundBaseMicStand.svg?react";
+import DIBox from "./SVGIcons/DIbox.svg?react";
+import StackAmp from "./SVGIcons/StackAmp.svg?react";
+import ComboAmp from "./SVGIcons/ComboAmp.svg?react";
+import FXUnit from "./SVGIcons/FXunit.svg?react";
+import DoubleStackAmp from "./SVGIcons/DoubleStackAmp.svg?react";
+import GrandPiano from "./SVGIcons/GrandPiano.svg?react";
 import Keyboard from "./SVGIcons/Keyboard.svg?react";
 import Saxophone from "./SVGIcons/Saxophone.svg?react";
-import Shure57 from "./SVGIcons/Shure 57.svg?react";
-import Shure58 from "./SVGIcons/Shure 58.svg?react";
-import BassGuitar from "./SVGIcons/Bass Guitar.svg?react";
-import JazzGuitar from "./SVGIcons/Jazz Guitar.svg?react";
-import DrumKit from "./SVGIcons/Drum Kit.svg?react";
-import ElectricGuitar from "./SVGIcons/Electric Guitar.svg?react";
-import AcousticGuitar from "./SVGIcons/Acoustic Guitar.svg?react";
+import Shure57 from "./SVGIcons/Shure57.svg?react";
+import Shure58 from "./SVGIcons/Shure58.svg?react";
+import BassGuitar from "./SVGIcons/BassGuitar.svg?react";
+import JazzGuitar from "./SVGIcons/JazzGuitar.svg?react";
+import DrumKit from "./SVGIcons/DrumKit.svg?react";
+import ElectricGuitar from "./SVGIcons/ElectricGuitar.svg?react";
+import AcousticGuitar from "./SVGIcons/AcousticGuitar.svg?react";
 
 const INSTRUMENT_CATEGORIES = [
   {
