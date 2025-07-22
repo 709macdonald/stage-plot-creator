@@ -115,32 +115,84 @@ function App() {
   const draggedIdRef = useRef(null);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
 
+  // Track which stage item is selected
+  const [selectedStageItemId, setSelectedStageItemId] = useState(null);
+
   // Click an instrument to select it
   const handlePaletteClick = (inst) => {
     setSelectedInstrument(inst);
   };
 
-  // Click on the stage to place the selected instrument
+  // Click on the stage to place or deselect
   const handleStageClick = (e) => {
-    if (!selectedInstrument || !stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setStageItems((items) => [
-      ...items,
-      {
-        id: Date.now(),
-        ...selectedInstrument,
-        x,
-        y,
-      },
-    ]);
-    setSelectedInstrument(null);
+    if (selectedInstrument && stageRef.current) {
+      const rect = stageRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setStageItems((items) => [
+        ...items,
+        {
+          id: Date.now(),
+          ...selectedInstrument,
+          x,
+          y,
+          size: 32,
+        },
+      ]);
+      setSelectedInstrument(null);
+      setSelectedStageItemId(null);
+    } else if (e.target === stageRef.current) {
+      setSelectedStageItemId(null); // Only deselect if clicking the background
+    }
   };
 
-  // Start dragging an existing icon
+  // Handle resizing
+  const resizingIdRef = useRef(null);
+  const initialSizeRef = useRef(32);
+  const initialMouseRef = useRef({ x: 0, y: 0 });
+
+  const handleResizeMouseDown = (e, id) => {
+    e.stopPropagation();
+    resizingIdRef.current = id;
+    const item = stageItems.find((item) => item.id === id);
+    initialSizeRef.current = item.size || 32;
+    initialMouseRef.current = { x: e.clientX, y: e.clientY };
+    window.addEventListener("mousemove", handleResizeMouseMove);
+    window.addEventListener("mouseup", handleResizeMouseUp);
+  };
+
+  const handleResizeMouseMove = (e) => {
+    setStageItems((items) =>
+      items.map((item) => {
+        if (item.id !== resizingIdRef.current) return item;
+        const dx = e.clientX - initialMouseRef.current.x;
+        const dy = e.clientY - initialMouseRef.current.y;
+        // Use the larger of dx or dy for uniform scaling
+        const delta = Math.max(dx, dy);
+        const newSize = Math.max(
+          16,
+          Math.min(128, initialSizeRef.current + delta)
+        );
+        return { ...item, size: newSize };
+      })
+    );
+  };
+
+  const handleResizeMouseUp = () => {
+    resizingIdRef.current = null;
+    window.removeEventListener("mousemove", handleResizeMouseMove);
+    window.removeEventListener("mouseup", handleResizeMouseUp);
+  };
+
+  // Handle delete
+  const handleDeleteIcon = (id) => {
+    setStageItems((items) => items.filter((item) => item.id !== id));
+  };
+
+  // When clicking an icon, select it
   const handleIconMouseDown = (e, id) => {
     e.stopPropagation();
+    setSelectedStageItemId(id);
     draggedIdRef.current = id;
     const item = stageItems.find((item) => item.id === id);
     dragOffsetRef.current = {
@@ -175,19 +227,22 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ padding: 32 }}>
+    <div className="app-container">
       <h1>Stage Plot Creator</h1>
-      <InstrumentPalette
-        categories={INSTRUMENT_CATEGORIES}
-        selectedInstrument={selectedInstrument}
-        onSelect={handlePaletteClick}
-      />
       <Stage
         stageItems={stageItems}
         onStageClick={handleStageClick}
         onIconMouseDown={handleIconMouseDown}
         stageRef={stageRef}
         selectedInstrument={selectedInstrument}
+        onResizeMouseDown={handleResizeMouseDown}
+        onDeleteIcon={handleDeleteIcon}
+        selectedStageItemId={selectedStageItemId}
+      />
+      <InstrumentPalette
+        categories={INSTRUMENT_CATEGORIES}
+        selectedInstrument={selectedInstrument}
+        onSelect={handlePaletteClick}
       />
       <p style={{ marginTop: 16, color: "#666" }}>
         Click an instrument from the palette, then click on the stage to place
