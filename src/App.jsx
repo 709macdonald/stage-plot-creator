@@ -135,11 +135,7 @@ function App() {
               cursor: "grab",
               fontSize: 48,
               userSelect: "none",
-              zIndex: draggedIdRef.current === item.id ? 2 : 1,
-              transition:
-                draggedIdRef.current === item.id ? "none" : "box-shadow 0.2s",
-              boxShadow:
-                draggedIdRef.current === item.id ? "0 4px 16px #aaa" : "none",
+              // Remove drag shadow and zIndex feedback
             }}
             onMouseDown={(e) => handleIconMouseDown(e, item.id)}
           >
