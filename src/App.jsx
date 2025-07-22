@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import "./App.css";
+import InstrumentPalette from "./components/InstrumentPalette.jsx";
+import Stage from "./components/Stage.jsx";
 
 const INSTRUMENTS = [
   { name: "Guitar", icon: "🎸" },
@@ -79,70 +81,18 @@ function App() {
   return (
     <div className="app-container" style={{ padding: 32 }}>
       <h1>Stage Plot Creator</h1>
-      <div style={{ marginBottom: 16 }}>
-        <span style={{ marginRight: 8 }}>
-          Click an instrument, then click on the stage to place it:
-        </span>
-        {INSTRUMENTS.map((inst) => (
-          <button
-            key={inst.name}
-            onClick={() => handlePaletteClick(inst)}
-            style={{
-              marginRight: 8,
-              fontSize: 24,
-              cursor: "pointer",
-              background:
-                selectedInstrument && selectedInstrument.name === inst.name
-                  ? "#d0eaff"
-                  : "",
-              border:
-                selectedInstrument && selectedInstrument.name === inst.name
-                  ? "2px solid #3399ff"
-                  : "",
-            }}
-          >
-            {inst.icon} {inst.name}
-          </button>
-        ))}
-      </div>
-      <div
-        ref={stageRef}
-        className="stage-area"
-        style={{
-          width: 600,
-          height: 400,
-          border: "2px solid #333",
-          borderRadius: 16,
-          position: "relative",
-          background: "#f7f7f7",
-          margin: "0 auto",
-          overflow: "hidden",
-          cursor: selectedInstrument
-            ? "crosshair"
-            : draggedIdRef.current
-            ? "grabbing"
-            : "pointer",
-        }}
-        onClick={handleStageClick}
-      >
-        {stageItems.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              position: "absolute",
-              left: item.x - 24,
-              top: item.y - 24,
-              cursor: "grab",
-              fontSize: 48,
-              userSelect: "none",
-              // Remove drag shadow and zIndex feedback
-            }}
-            onMouseDown={(e) => handleIconMouseDown(e, item.id)}
-          >
-            {item.icon}
-          </div>
-        ))}
-      </div>
+      <InstrumentPalette
+        instruments={INSTRUMENTS}
+        selectedInstrument={selectedInstrument}
+        onSelect={handlePaletteClick}
+      />
+      <Stage
+        stageItems={stageItems}
+        onStageClick={handleStageClick}
+        onIconMouseDown={handleIconMouseDown}
+        stageRef={stageRef}
+        selectedInstrument={selectedInstrument}
+      />
       <p style={{ marginTop: 16, color: "#666" }}>
         Click an instrument from the palette, then click on the stage to place
         it. To move an icon, just drag it. Only one action at a time.
