@@ -9,36 +9,62 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
 
   // Generate inputs based on stage items
   useEffect(() => {
-    const newInputs = [];
-    let inputNumber = 1;
+    setInputs((prevInputs) => {
+      const newInputs = [];
+      let inputNumber = 1;
+      const processedStageItems = new Set();
 
-    stageItems.forEach((item) => {
-      const inputConfig = getInputConfig(item.name);
-      if (inputConfig) {
-        const groupId = `${item.id}-${item.name}`;
+      // First, preserve existing inputs that still have corresponding stage items
+      const existingInputs = prevInputs.filter((input) => {
+        const stageItem = stageItems.find(
+          (item) => item.id === input.stageItemId
+        );
+        if (stageItem) {
+          processedStageItems.add(stageItem.id);
+          return true; // Keep this input
+        }
+        return false; // Remove this input (stage item was deleted)
+      });
 
-        inputConfig.channels.forEach((channel, index) => {
-          newInputs.push({
-            id: `${groupId}-${index}`,
-            stageItemId: item.id,
-            instrumentName: item.name,
-            channel: channel,
-            inputNumber: inputNumber++,
-            name: `${item.name} ${channel}`,
-            nickname: "",
-            gearModel: "",
-            notes: "",
-            isStereo: inputConfig.isStereo,
-            groupId: inputConfig.isGrouped ? groupId : null,
-            isGrouped: inputConfig.isGrouped,
-            canToggleStereo: inputConfig.canToggleStereo,
-            isNaturalMultiInput: inputConfig.isGrouped, // Track if this is a naturally multi-input instrument
-          });
+      // Add existing inputs to the new list, preserving their data
+      existingInputs.forEach((input) => {
+        newInputs.push({
+          ...input,
+          inputNumber: inputNumber++,
         });
-      }
-    });
+      });
 
-    setInputs(newInputs);
+      // Now add new inputs for stage items that don't have inputs yet
+      stageItems.forEach((item) => {
+        if (!processedStageItems.has(item.id)) {
+          const inputConfig = getInputConfig(item.name);
+          if (inputConfig) {
+            const groupId = `${item.id}-${item.name}`;
+
+            inputConfig.channels.forEach((channel, index) => {
+              newInputs.push({
+                id: `${groupId}-${index}`,
+                stageItemId: item.id,
+                instrumentName: item.name,
+                channel: channel,
+                inputNumber: inputNumber++,
+                name: `${item.name} ${channel}`,
+                nickname: "",
+                gearModel: "",
+                notes: "",
+                isStereo: inputConfig.isStereo,
+                groupId: inputConfig.isGrouped ? groupId : null,
+                isGrouped: inputConfig.isGrouped,
+                canToggleStereo: inputConfig.canToggleStereo,
+                isNaturalMultiInput: inputConfig.isGrouped,
+              });
+            });
+          }
+        }
+      });
+
+      return newInputs;
+    });
   }, [stageItems]);
 
   const getInputConfig = (instrumentName) => {
@@ -128,6 +154,11 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const removeInput = (inputId) => {
+    // Save any current edit before removing input
+    if (editingInput) {
+      saveEdit();
+    }
+
     setInputs((prev) => {
       const inputToRemove = prev.find((input) => input.id === inputId);
       if (!inputToRemove) return prev;
@@ -153,6 +184,11 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const addChannelToGroup = (groupId) => {
+    // Save any current edit before adding channel
+    if (editingInput) {
+      saveEdit();
+    }
+
     setInputs((prev) => {
       const groupInputs = prev.filter((input) => input.groupId === groupId);
       if (groupInputs.length === 0) return prev;
@@ -203,6 +239,8 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         channel: newChannel,
         inputNumber: prev.length + 1,
         name: `${firstInput.instrumentName} ${newChannel}`,
+        nickname: "",
+        gearModel: "",
         notes: "",
         isStereo: firstInput.isStereo,
         groupId: groupId,
@@ -245,6 +283,11 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const toggleInputStereo = (inputId) => {
+    // Save any current edit before toggling stereo
+    if (editingInput) {
+      saveEdit();
+    }
+
     setInputs((prev) => {
       const input = prev.find((i) => i.id === inputId);
       if (!input) return prev;
@@ -284,12 +327,20 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const handleDragStart = (e, input) => {
+    // Save any current edit before starting drag
+    if (editingInput) {
+      saveEdit();
+    }
     setDraggedInput(input);
     setDraggedGroup(null);
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleGroupDragStart = (e, groupId) => {
+    // Save any current edit before starting group drag
+    if (editingInput) {
+      saveEdit();
+    }
     setDraggedGroup(groupId);
     setDraggedInput(null);
     e.dataTransfer.effectAllowed = "move";
@@ -379,7 +430,10 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const startEditing = (input) => {
-    setEditingInput({ ...input });
+    // Only start editing if we're not already editing this input
+    if (editingInput?.id !== input.id) {
+      setEditingInput({ ...input });
+    }
   };
 
   const saveEdit = () => {
@@ -391,6 +445,11 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
       );
       setEditingInput(null);
     }
+  };
+
+  const handleFieldBlur = (e) => {
+    // Don't auto-save on blur - let user control when to save
+    // This prevents the immediate exit when clicking on input fields
   };
 
   const cancelEdit = () => {
@@ -421,9 +480,25 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   return (
-    <div className="input-list">
+    <div
+      className="input-list"
+      onClick={(e) => {
+        // Only save if clicking directly on the container, not on any child elements
+        if (e.target === e.currentTarget) {
+          saveEdit();
+        }
+      }}
+    >
       <h2>Input List</h2>
-      <div className="input-list-content">
+      <div
+        className="input-list-content"
+        onClick={(e) => {
+          // Only save if clicking directly on the content area, not on any child elements
+          if (e.target === e.currentTarget) {
+            saveEdit();
+          }
+        }}
+      >
         {inputs.length === 0 ? (
           <p className="no-inputs">
             No inputs yet. Add instruments to the stage!
@@ -492,12 +567,23 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                                 name: e.target.value,
                               })
                             }
-                            onBlur={saveEdit}
+                            onBlur={handleFieldBlur}
                             onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                saveEdit();
+                              }
+                            }}
                             autoFocus
                           />
                         ) : (
-                          <span onClick={() => startEditing(input)}>
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(input);
+                            }}
+                          >
                             {input.name}
                           </span>
                         )}
@@ -514,12 +600,21 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                                 nickname: e.target.value,
                               })
                             }
-                            onBlur={saveEdit}
+                            onBlur={handleFieldBlur}
                             onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                saveEdit();
+                              }
+                            }}
                           />
                         ) : (
                           <span
-                            onClick={() => startEditing(input)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(input);
+                            }}
                             className={
                               input.nickname ? "has-nickname" : "no-nickname"
                             }
@@ -540,12 +635,21 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                                 gearModel: e.target.value,
                               })
                             }
-                            onBlur={saveEdit}
+                            onBlur={handleFieldBlur}
                             onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                saveEdit();
+                              }
+                            }}
                           />
                         ) : (
                           <span
-                            onClick={() => startEditing(input)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(input);
+                            }}
                             className={input.gearModel ? "has-gear" : "no-gear"}
                           >
                             {input.gearModel || "Click to add gear/model..."}
@@ -564,12 +668,21 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                                 notes: e.target.value,
                               })
                             }
-                            onBlur={saveEdit}
+                            onBlur={handleFieldBlur}
                             onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                saveEdit();
+                              }
+                            }}
                           />
                         ) : (
                           <span
-                            onClick={() => startEditing(input)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(input);
+                            }}
                             className={input.notes ? "has-notes" : "no-notes"}
                           >
                             {input.notes || "Click to add notes..."}
