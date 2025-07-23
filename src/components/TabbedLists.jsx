@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import "./TabbedLists.css";
 import InputList from "./InputList.jsx";
+import OutputList from "./OutputList.jsx";
+import EditableItem from "./EditableItem.jsx";
 
-const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
+const TabbedLists = ({
+  stageItems,
+  onInputUpdate,
+  onOutputUpdate,
+  onStageItemUpdate,
+  onRemoveFromStage,
+}) => {
   const [activeTab, setActiveTab] = useState("master");
 
   const tabs = [
@@ -18,32 +26,12 @@ const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         <h3>All Stage Items</h3>
         <div className="master-items">
           {stageItems.map((item) => (
-            <div key={item.id} className="master-item">
-              <div className="master-item-icon">
-                {React.cloneElement(item.icon, {
-                  style: { width: 24, height: 24 },
-                })}
-              </div>
-              <div className="master-item-info">
-                <div className="master-item-name">{item.name}</div>
-                {item.nickname && (
-                  <div className="master-item-nickname">{item.nickname}</div>
-                )}
-                <div className="master-item-gear">
-                  Gear: {item.gearModel || "Not specified"}
-                </div>
-                <div className="master-item-notes">
-                  Notes: {item.notes || "No notes"}
-                </div>
-              </div>
-              <button
-                className="delete-item-btn"
-                onClick={() => onRemoveFromStage(item.id)}
-                title="Delete from stage"
-              >
-                ×
-              </button>
-            </div>
+            <EditableItem
+              key={item.id}
+              item={item}
+              onUpdate={onStageItemUpdate}
+              onRemoveFromStage={onRemoveFromStage}
+            />
           ))}
         </div>
       </div>
@@ -52,14 +40,8 @@ const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
 
   const renderInputList = () => {
     // Filter out gear items, monitor items, PA items, cables, and lighting from inputs
-    const gearItems = [
-      "Boom Mic Stand",
-      "Round Base Mic Stand",
-      "DI Box",
-      "FX Unit",
-      "Shure 57",
-      "Shure 58",
-    ];
+    // Microphones should create inputs, so they're not filtered out
+    const gearItems = ["Boom Mic Stand", "Round Base Mic Stand", "FX Unit"];
     const monitorItems = ["In-Ear Monitors", "Floor Monitor"];
     const paItems = ["PA Speaker", "Mixing Console"];
     const cableItems = ["XLR Cable", "Quarter Inch Cable"];
@@ -86,43 +68,13 @@ const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const renderOutputList = () => {
-    const monitorItems = stageItems.filter((item) =>
-      ["In-Ear Monitors", "Floor Monitor"].includes(item.name)
-    );
-
     return (
-      <div className="output-list">
-        <h3>Output List</h3>
-        {monitorItems.length === 0 ? (
-          <p className="no-outputs">
-            No monitors on stage yet. Add monitors to see outputs!
-          </p>
-        ) : (
-          <div className="output-items">
-            {monitorItems.map((item) => (
-              <div key={item.id} className="output-item">
-                <div className="output-item-icon">
-                  {React.cloneElement(item.icon, {
-                    style: { width: 24, height: 24 },
-                  })}
-                </div>
-                <div className="output-item-info">
-                  <div className="output-item-name">{item.name}</div>
-                  {item.nickname && (
-                    <div className="output-item-nickname">{item.nickname}</div>
-                  )}
-                </div>
-                <button
-                  className="delete-item-btn"
-                  onClick={() => onRemoveFromStage(item.id)}
-                  title="Delete from stage"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="output-list-container">
+        <OutputList
+          stageItems={stageItems}
+          onOutputUpdate={onOutputUpdate}
+          onRemoveFromStage={onRemoveFromStage}
+        />
       </div>
     );
   };
@@ -136,6 +88,8 @@ const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         "Stack Amp",
         "Combo Amp",
         "Double Stack Amp",
+        "Mixing Console",
+        "Stage Light",
       ].includes(item.name)
     );
 
@@ -150,26 +104,12 @@ const TabbedLists = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         </div>
         <div className="power-items">
           {powerItems.map((item) => (
-            <div key={item.id} className="power-item">
-              <div className="power-item-icon">
-                {React.cloneElement(item.icon, {
-                  style: { width: 24, height: 24 },
-                })}
-              </div>
-              <div className="power-item-info">
-                <div className="power-item-name">{item.name}</div>
-                {item.nickname && (
-                  <div className="power-item-nickname">{item.nickname}</div>
-                )}
-              </div>
-              <button
-                className="delete-item-btn"
-                onClick={() => onRemoveFromStage(item.id)}
-                title="Delete from stage"
-              >
-                ×
-              </button>
-            </div>
+            <EditableItem
+              key={item.id}
+              item={item}
+              onUpdate={onStageItemUpdate}
+              onRemoveFromStage={onRemoveFromStage}
+            />
           ))}
         </div>
       </div>

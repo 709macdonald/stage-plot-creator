@@ -7,14 +7,14 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   const [draggedInput, setDraggedInput] = useState(null);
   const [draggedGroup, setDraggedGroup] = useState(null);
 
-  // Generate inputs based on stage items
+  // Generate inputs based on stage items with proper ordering
   useEffect(() => {
     setInputs((prevInputs) => {
       const newInputs = [];
-      let inputNumber = 1;
       const processedStageItems = new Set();
 
       // First, preserve existing inputs that still have corresponding stage items
+      // and maintain their order and numbering
       const existingInputs = prevInputs.filter((input) => {
         const stageItem = stageItems.find(
           (item) => item.id === input.stageItemId
@@ -26,20 +26,19 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         return false; // Remove this input (stage item was deleted)
       });
 
-      // Add existing inputs to the new list, preserving their data
+      // Add existing inputs to the new list, preserving their data and order
       existingInputs.forEach((input) => {
-        newInputs.push({
-          ...input,
-          inputNumber: inputNumber++,
-        });
+        newInputs.push({ ...input });
       });
 
       // Now add new inputs for stage items that don't have inputs yet
+      // These will be added at the end with sequential numbering
       stageItems.forEach((item) => {
         if (!processedStageItems.has(item.id)) {
           const inputConfig = getInputConfig(item.name);
           if (inputConfig) {
             const groupId = `${item.id}-${item.name}`;
+            const nextInputNumber = newInputs.length + 1;
 
             inputConfig.channels.forEach((channel, index) => {
               newInputs.push({
@@ -47,7 +46,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                 stageItemId: item.id,
                 instrumentName: item.name,
                 channel: channel,
-                inputNumber: inputNumber++,
+                inputNumber: nextInputNumber + index,
                 name: `${item.name} ${channel}`,
                 nickname: item.nickname || "",
                 gearModel: "",
@@ -62,6 +61,9 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
           }
         }
       });
+
+      // Sort by input number to ensure proper order
+      newInputs.sort((a, b) => a.inputNumber - b.inputNumber);
 
       return newInputs;
     });
@@ -117,6 +119,60 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         canToggleStereo: false,
       },
       "Shure 58": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Shure Beta 52": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Shure Beta 91": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "AKG C414": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Neumann U87": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Sennheiser MD421": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Audio Technica ATM25": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Electro-Voice RE20": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Blue Yeti": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Shure SM7B": {
         channels: ["Mic"],
         isStereo: false,
         isGrouped: false,
@@ -195,6 +251,58 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         ...input,
         inputNumber: index + 1,
       }));
+    });
+  };
+
+  // Reorder inputs by changing their input numbers
+  const reorderInputs = (newOrder) => {
+    setInputs((prev) => {
+      const updated = [...prev];
+
+      // Update input numbers based on new order
+      newOrder.forEach((inputId, index) => {
+        const input = updated.find((i) => i.id === inputId);
+        if (input) {
+          input.inputNumber = index + 1;
+        }
+      });
+
+      // Sort by new input numbers
+      return updated.sort((a, b) => a.inputNumber - b.inputNumber);
+    });
+  };
+
+  // Handle manual input number changes
+  const handleInputNumberChange = (inputId, newNumber) => {
+    const num = parseInt(newNumber);
+    if (isNaN(num) || num < 1) return;
+
+    setInputs((prev) => {
+      const updated = [...prev];
+      const targetInput = updated.find((input) => input.id === inputId);
+      if (!targetInput) return prev;
+
+      const oldNumber = targetInput.inputNumber;
+      if (oldNumber === num) return prev;
+
+      // If moving to a higher number, shift others down
+      if (num > oldNumber) {
+        updated.forEach((input) => {
+          if (input.inputNumber > oldNumber && input.inputNumber <= num) {
+            input.inputNumber--;
+          }
+        });
+      } else {
+        // If moving to a lower number, shift others up
+        updated.forEach((input) => {
+          if (input.inputNumber >= num && input.inputNumber < oldNumber) {
+            input.inputNumber++;
+          }
+        });
+      }
+
+      targetInput.inputNumber = num;
+      return updated.sort((a, b) => a.inputNumber - b.inputNumber);
     });
   };
 
@@ -391,17 +499,17 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         const before = filtered.slice(0, targetIndex);
         const after = filtered.slice(targetIndex);
         const newInput = { ...draggedInput };
-        return [...before, newInput, ...after].map((input, index) => ({
-          ...input,
-          inputNumber: index + 1,
-        }));
+        const newOrder = [...before, newInput, ...after].map(
+          (input) => input.id
+        );
+        reorderInputs(newOrder);
+        return [...before, newInput, ...after];
       } else {
         // Insert at the end
         const newInput = { ...draggedInput };
-        return [...filtered, newInput].map((input, index) => ({
-          ...input,
-          inputNumber: index + 1,
-        }));
+        const newOrder = [...filtered, newInput].map((input) => input.id);
+        reorderInputs(newOrder);
+        return [...filtered, newInput];
       }
     });
 
@@ -437,13 +545,14 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
       // Insert all dragged group inputs at the target position
       const before = filtered.slice(0, targetIndex);
       const after = filtered.slice(targetIndex);
-
-      return [...before, ...draggedGroupInputs, ...after].map(
-        (input, index) => ({
-          ...input,
-          inputNumber: index + 1,
-        })
+      const newOrder = [...before, ...draggedGroupInputs, ...after].map(
+        (input) => input.id
       );
+
+      // Use the reorderInputs function to properly update numbers
+      reorderInputs(newOrder);
+
+      return [...before, ...draggedGroupInputs, ...after];
     });
 
     setDraggedGroup(null);
@@ -575,12 +684,36 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                     className={`input-item ${
                       draggedInput?.id === input.id ? "dragging" : ""
                     }`}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, input)}
+                    draggable={groupInputs.length === 1}
+                    onDragStart={(e) => {
+                      if (groupInputs.length === 1) {
+                        handleDragStart(e, input);
+                      }
+                    }}
                     onDragOver={(e) => handleDragOver(e)}
                     onDrop={(e) => handleDrop(e, input)}
                   >
-                    <div className="input-number">{input.inputNumber}</div>
+                    <div className="input-number">
+                      <input
+                        type="number"
+                        min="1"
+                        value={input.inputNumber}
+                        onChange={(e) =>
+                          handleInputNumberChange(input.id, e.target.value)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        style={{
+                          width: "40px",
+                          textAlign: "center",
+                          background: "transparent",
+                          border: "none",
+                          color: "#fff",
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                        }}
+                      />
+                    </div>
                     <div className="input-icon">
                       <span className="channel-label">{input.channel}</span>
                     </div>

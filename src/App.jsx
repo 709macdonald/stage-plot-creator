@@ -27,6 +27,15 @@ import XLR_Cable from "./SVGIcons/XLR_Cable.svg?react";
 import QuarterInch_Cable from "./SVGIcons/QuarterInch_Cable.svg?react";
 import StageLight from "./SVGIcons/StageLight.svg?react";
 import MixingConsole from "./SVGIcons/MixingConsole.svg?react";
+import ShureBeta52 from "./SVGIcons/ShureBeta52.svg?react";
+import ShureBeta91 from "./SVGIcons/ShureBeta91.svg?react";
+import AKG_C414 from "./SVGIcons/AKG_C414.svg?react";
+import Neumann_U87 from "./SVGIcons/Neumann_U87.svg?react";
+import Sennheiser_MD421 from "./SVGIcons/Sennheiser_MD421.svg?react";
+import AudioTechnica_ATM25 from "./SVGIcons/AudioTechnica_ATM25.svg?react";
+import ElectroVoice_RE20 from "./SVGIcons/ElectroVoice_RE20.svg?react";
+import Blue_Yeti from "./SVGIcons/Blue_Yeti.svg?react";
+import Shure_SM7B from "./SVGIcons/Shure_SM7B.svg?react";
 
 const INSTRUMENT_CATEGORIES = [
   {
@@ -42,8 +51,55 @@ const INSTRUMENT_CATEGORIES = [
       },
       { name: "DI Box", icon: <DIBox style={{ width: 32, height: 32 }} /> },
       { name: "FX Unit", icon: <FXUnit style={{ width: 32, height: 32 }} /> },
-      { name: "Shure 57", icon: <Shure57 style={{ width: 32, height: 32 }} /> },
-      { name: "Shure 58", icon: <Shure58 style={{ width: 32, height: 32 }} /> },
+    ],
+  },
+  {
+    name: "Microphones",
+    items: [
+      {
+        name: "Shure 57",
+        icon: <Shure57 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Shure 58",
+        icon: <Shure58 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Shure Beta 52",
+        icon: <ShureBeta52 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Shure Beta 91",
+        icon: <ShureBeta91 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "AKG C414",
+        icon: <AKG_C414 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Neumann U87",
+        icon: <Neumann_U87 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Sennheiser MD421",
+        icon: <Sennheiser_MD421 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Audio Technica ATM25",
+        icon: <AudioTechnica_ATM25 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Electro-Voice RE20",
+        icon: <ElectroVoice_RE20 style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Blue Yeti",
+        icon: <Blue_Yeti style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Shure SM7B",
+        icon: <Shure_SM7B style={{ width: 32, height: 32 }} />,
+      },
     ],
   },
   {
@@ -302,6 +358,30 @@ function App() {
     );
   };
 
+  // Handle output updates (including nickname updates)
+  const handleOutputUpdate = (outputData) => {
+    setStageItems((items) =>
+      items.map((item) => {
+        if (item.id === outputData.stageItemId) {
+          return { ...item, nickname: outputData.nickname };
+        }
+        return item;
+      })
+    );
+  };
+
+  // Handle stage item updates (for all lists)
+  const handleStageItemUpdate = (updatedItem) => {
+    setStageItems((items) =>
+      items.map((item) => {
+        if (item.id === updatedItem.id) {
+          return { ...item, ...updatedItem };
+        }
+        return item;
+      })
+    );
+  };
+
   // When clicking an icon, select it
   const handleIconMouseDown = (e, id) => {
     e.stopPropagation();
@@ -365,6 +445,8 @@ function App() {
           <TabbedLists
             stageItems={stageItems}
             onInputUpdate={handleInputUpdate}
+            onOutputUpdate={handleOutputUpdate}
+            onStageItemUpdate={handleStageItemUpdate}
             onRemoveFromStage={(stageItemId) => {
               setStageItems((items) =>
                 items.filter((item) => item.id !== stageItemId)

@@ -1,22 +1,16 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Main speaker cabinet -->
   <rect x="6" y="4" width="20" height="24" rx="1" fill="#333" stroke="#666" stroke-width="1"/>
 
-  <!-- Speaker grille -->
   <rect x="8" y="6" width="16" height="20" rx="1" fill="#555"/>
 
-  <!-- High frequency driver -->
   <circle cx="16" cy="10" r="3" fill="#222" stroke="#444" stroke-width="1"/>
   <circle cx="16" cy="10" r="1.5" fill="#111"/>
 
-  <!-- Low frequency driver -->
   <ellipse cx="16" cy="20" rx="5" ry="6" fill="#222" stroke="#444" stroke-width="1"/>
   <ellipse cx="16" cy="20" rx="3" ry="4" fill="#111"/>
 
-  <!-- Speaker stand -->
   <rect x="14" y="28" width="4" height="2" fill="#666"/>
 
-  <!-- Input panel -->
   <rect x="28" y="8" width="2" height="16" fill="#888"/>
   <circle cx="29" cy="10" r="0.5" fill="#333"/>
   <circle cx="29" cy="12" r="0.5" fill="#333"/>

@@ -1,0 +1,167 @@
+.editable-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #2a2a2a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.editable-item:hover {
+  background: #333;
+  border-color: #666;
+}
+
+.editable-item.editing {
+  cursor: default;
+  background: #1a1a1a;
+  border-color: #007acc;
+}
+
+.editable-item-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.editable-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.editable-item-name {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.editable-item-nickname {
+  color: #007acc;
+  font-size: 0.9em;
+  margin-bottom: 2px;
+}
+
+.editable-item-gear {
+  color: #aaa;
+  font-size: 0.85em;
+  margin-bottom: 2px;
+}
+
+.editable-item-notes {
+  color: #888;
+  font-size: 0.8em;
+  font-style: italic;
+}
+
+.editable-item-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.editable-field {
+  margin-bottom: 8px;
+}
+
+.editable-field label {
+  display: block;
+  font-size: 0.8em;
+  color: #aaa;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.editable-field input,
+.editable-field textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.editable-field input:focus,
+.editable-field textarea:focus {
+  outline: none;
+  border-color: #007acc;
+  background: #222;
+}
+
+.editable-field textarea {
+  resize: vertical;
+  min-height: 40px;
+  font-family: inherit;
+}
+
+.editable-field .item-name {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.editable-item-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.save-btn,
+.cancel-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+.delete-item-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: #dc3545;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.delete-item-btn:hover {
+  background: #c82333;
+}
