@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import "./App.css";
 import InstrumentPalette from "./components/InstrumentPalette.jsx";
 import Stage from "./components/Stage.jsx";
+import InputList from "./components/InputList.jsx";
 import BoomMicStand from "./SVGIcons/BoomMicStand.svg?react";
 import RoundBaseMicStand from "./SVGIcons/RoundBaseMicStand.svg?react";
 import DIBox from "./SVGIcons/DIbox.svg?react";
@@ -229,22 +230,29 @@ function App() {
   return (
     <div className="app-container">
       <h1>Stage Plot Creator</h1>
-      <Stage
-        stageItems={stageItems}
-        onStageClick={handleStageClick}
-        onIconMouseDown={handleIconMouseDown}
-        stageRef={stageRef}
-        selectedInstrument={selectedInstrument}
-        onResizeMouseDown={handleResizeMouseDown}
-        onDeleteIcon={handleDeleteIcon}
-        selectedStageItemId={selectedStageItemId}
-      />
-      <InstrumentPalette
-        categories={INSTRUMENT_CATEGORIES}
-        selectedInstrument={selectedInstrument}
-        onSelect={handlePaletteClick}
-      />
-      <p style={{ marginTop: 16, color: "#666" }}>
+      <div className="main-content">
+        <div className="left-panel">
+          <Stage
+            stageItems={stageItems}
+            onStageClick={handleStageClick}
+            onIconMouseDown={handleIconMouseDown}
+            stageRef={stageRef}
+            selectedInstrument={selectedInstrument}
+            onResizeMouseDown={handleResizeMouseDown}
+            onDeleteIcon={handleDeleteIcon}
+            selectedStageItemId={selectedStageItemId}
+          />
+          <InstrumentPalette
+            categories={INSTRUMENT_CATEGORIES}
+            selectedInstrument={selectedInstrument}
+            onSelect={handlePaletteClick}
+          />
+        </div>
+        <div className="right-panel">
+          <InputList stageItems={stageItems} />
+        </div>
+      </div>
+      <p style={{ marginTop: 16, color: "#888" }}>
         Click an instrument from the palette, then click on the stage to place
         it. To move an icon, just drag it. Only one action at a time.
       </p>
