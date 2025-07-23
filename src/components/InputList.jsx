@@ -25,6 +25,8 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
             channel: channel,
             inputNumber: inputNumber++,
             name: `${item.name} ${channel}`,
+            nickname: "",
+            gearModel: "",
             notes: "",
             isStereo: inputConfig.isStereo,
             groupId: inputConfig.isGrouped ? groupId : null,
@@ -500,6 +502,56 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                           </span>
                         )}
                       </div>
+                      <div className="input-nickname">
+                        {editingInput?.id === input.id ? (
+                          <input
+                            type="text"
+                            placeholder="Nickname (shows on stage)..."
+                            value={editingInput.nickname}
+                            onChange={(e) =>
+                              setEditingInput({
+                                ...editingInput,
+                                nickname: e.target.value,
+                              })
+                            }
+                            onBlur={saveEdit}
+                            onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => startEditing(input)}
+                            className={
+                              input.nickname ? "has-nickname" : "no-nickname"
+                            }
+                          >
+                            {input.nickname || "Click to add nickname..."}
+                          </span>
+                        )}
+                      </div>
+                      <div className="input-gear-model">
+                        {editingInput?.id === input.id ? (
+                          <input
+                            type="text"
+                            placeholder="Gear/Model..."
+                            value={editingInput.gearModel}
+                            onChange={(e) =>
+                              setEditingInput({
+                                ...editingInput,
+                                gearModel: e.target.value,
+                              })
+                            }
+                            onBlur={saveEdit}
+                            onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => startEditing(input)}
+                            className={input.gearModel ? "has-gear" : "no-gear"}
+                          >
+                            {input.gearModel || "Click to add gear/model..."}
+                          </span>
+                        )}
+                      </div>
                       <div className="input-notes">
                         {editingInput?.id === input.id ? (
                           <input
@@ -526,7 +578,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                       </div>
                     </div>
                     <div className="input-actions">
-                      {input.canToggleStereo && (
+                      {input.canToggleStereo && groupInputs.length <= 2 && (
                         <button
                           className="stereo-toggle-small"
                           onClick={() => toggleInputStereo(input.id)}

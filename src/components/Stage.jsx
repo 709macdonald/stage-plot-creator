@@ -7,6 +7,7 @@ function Stage({
   stageRef,
   selectedInstrument,
   onResizeMouseDown,
+  onRotateMouseDown,
   onDeleteIcon,
   selectedStageItemId,
 }) {
@@ -30,6 +31,7 @@ function Stage({
       {stageItems.map((item) => (
         <div
           key={item.id}
+          data-item-id={item.id}
           style={{
             position: "absolute",
             left: item.x - (item.size || 32) / 2,
@@ -111,6 +113,44 @@ function Stage({
                   />
                 </svg>
               </div>
+              {/* Rotate handle */}
+              <div
+                onMouseDown={(e) => onRotateMouseDown(e, item.id)}
+                style={{
+                  position: "absolute",
+                  left: -7,
+                  bottom: -7,
+                  width: 14,
+                  height: 14,
+                  background: "#28a745",
+                  borderRadius: 3,
+                  border: "2px solid #ffffff",
+                  cursor: "grab",
+                  zIndex: 2,
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.10)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                title="Rotate"
+                tabIndex={-1}
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  style={{ display: "block" }}
+                >
+                  <path
+                    d="M8,2 C8,2 7,1 5,1 C3,1 2,2 2,3 C2,4 3,5 5,5 C6,5 7,4 7,3"
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <polygon points="7,3 8,2 7,1" fill="#fff" />
+                </svg>
+              </div>
             </>
           )}
           {/* Icon itself */}
@@ -122,6 +162,8 @@ function Stage({
               fontSize: item.size || 32,
               verticalAlign: "middle",
               pointerEvents: "none",
+              transform: `rotate(${item.rotation || 0}deg)`,
+              transformOrigin: "center center",
             }}
           >
             {React.cloneElement(item.icon, {

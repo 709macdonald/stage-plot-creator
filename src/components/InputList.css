@@ -187,6 +187,56 @@
   width: 100%;
 }
 
+.input-nickname {
+  font-size: 12px;
+  cursor: pointer;
+  color: #cccccc;
+}
+
+.input-nickname .no-nickname {
+  color: #888;
+  font-style: italic;
+}
+
+.input-nickname .has-nickname {
+  color: #cccccc;
+}
+
+.input-nickname input {
+  background: #2a2a2a;
+  border: 1px solid #007acc;
+  border-radius: 3px;
+  color: #ffffff;
+  padding: 2px 6px;
+  font-size: 12px;
+  width: 100%;
+}
+
+.input-gear-model {
+  font-size: 12px;
+  cursor: pointer;
+  color: #cccccc;
+}
+
+.input-gear-model .no-gear {
+  color: #888;
+  font-style: italic;
+}
+
+.input-gear-model .has-gear {
+  color: #cccccc;
+}
+
+.input-gear-model input {
+  background: #2a2a2a;
+  border: 1px solid #007acc;
+  border-radius: 3px;
+  color: #ffffff;
+  padding: 2px 6px;
+  font-size: 12px;
+  width: 100%;
+}
+
 .input-notes {
   font-size: 12px;
   cursor: pointer;

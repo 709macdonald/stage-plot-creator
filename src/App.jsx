@@ -185,6 +185,50 @@ function App() {
     window.removeEventListener("mouseup", handleResizeMouseUp);
   };
 
+  // Handle rotation
+  const rotatingIdRef = useRef(null);
+  const initialRotationRef = useRef(0);
+  const initialMouseRotationRef = useRef({ x: 0, y: 0 });
+
+  const handleRotateMouseDown = (e, id) => {
+    e.stopPropagation();
+    rotatingIdRef.current = id;
+    const item = stageItems.find((item) => item.id === id);
+    initialRotationRef.current = item.rotation || 0;
+    initialMouseRotationRef.current = { x: e.clientX, y: e.clientY };
+    window.addEventListener("mousemove", handleRotateMouseMove);
+    window.addEventListener("mouseup", handleRotateMouseUp);
+  };
+
+  const handleRotateMouseMove = (e) => {
+    setStageItems((items) =>
+      items.map((item) => {
+        if (item.id !== rotatingIdRef.current) return item;
+        const itemElement = document.querySelector(
+          `[data-item-id="${item.id}"]`
+        );
+        if (!itemElement) return item;
+
+        const rect = itemElement.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const angle =
+          Math.atan2(e.clientY - centerY, e.clientX - centerX) *
+          (180 / Math.PI);
+
+        const newRotation = (angle + 90) % 360; // Adjust for natural rotation
+        return { ...item, rotation: newRotation };
+      })
+    );
+  };
+
+  const handleRotateMouseUp = () => {
+    rotatingIdRef.current = null;
+    window.removeEventListener("mousemove", handleRotateMouseMove);
+    window.removeEventListener("mouseup", handleRotateMouseUp);
+  };
+
   // Handle delete
   const handleDeleteIcon = (id) => {
     setStageItems((items) => items.filter((item) => item.id !== id));
@@ -239,6 +283,7 @@ function App() {
             stageRef={stageRef}
             selectedInstrument={selectedInstrument}
             onResizeMouseDown={handleResizeMouseDown}
+            onRotateMouseDown={handleRotateMouseDown}
             onDeleteIcon={handleDeleteIcon}
             selectedStageItemId={selectedStageItemId}
           />
