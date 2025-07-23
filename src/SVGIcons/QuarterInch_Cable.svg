@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cable -->
+  <path d="M4 16 Q16 8 28 16" stroke="#666" stroke-width="2" fill="none"/>
+
+  <!-- Left 1/4" connector -->
+  <rect x="2" y="15" width="3" height="2" rx="0.5" fill="#333" stroke="#666" stroke-width="1"/>
+  <circle cx="3.5" cy="16" r="0.5" fill="#888"/>
+
+  <!-- Right 1/4" connector -->
+  <rect x="27" y="15" width="3" height="2" rx="0.5" fill="#333" stroke="#666" stroke-width="1"/>
+  <circle cx="28.5" cy="16" r="0.5" fill="#888"/>
+
+  <!-- Cable strain relief -->
+  <ellipse cx="5" cy="16" rx="0.5" ry="1.5" fill="#555"/>
+  <ellipse cx="27" cy="16" rx="0.5" ry="1.5" fill="#555"/>
+</svg>

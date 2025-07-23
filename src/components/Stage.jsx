@@ -174,6 +174,29 @@ function Stage({
               },
             })}
           </span>
+
+          {/* Nickname display */}
+          {item.nickname && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                marginTop: 4,
+                fontSize: Math.max(10, (item.size || 32) * 0.25),
+                fontWeight: "bold",
+                color: "#333",
+                textAlign: "center",
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+                textShadow: "1px 1px 2px rgba(255,255,255,0.8)",
+                zIndex: 1,
+              }}
+            >
+              {item.nickname}
+            </div>
+          )}
         </div>
       ))}
     </div>

@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left earpiece -->
+  <ellipse cx="8" cy="16" rx="4" ry="6" fill="#333" stroke="#666" stroke-width="1"/>
+  <ellipse cx="8" cy="16" rx="2.5" ry="4" fill="#555"/>
+
+  <!-- Right earpiece -->
+  <ellipse cx="24" cy="16" rx="4" ry="6" fill="#333" stroke="#666" stroke-width="1"/>
+  <ellipse cx="24" cy="16" rx="2.5" ry="4" fill="#555"/>
+
+  <!-- Cable -->
+  <path d="M12 16 Q16 12 20 16" stroke="#666" stroke-width="2" fill="none"/>
+  <path d="M12 16 Q16 20 20 16" stroke="#666" stroke-width="2" fill="none"/>
+
+  <!-- Cable connectors -->
+  <circle cx="12" cy="16" r="1" fill="#888"/>
+  <circle cx="20" cy="16" r="1" fill="#888"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Light housing -->
+  <rect x="8" y="6" width="16" height="12" rx="2" fill="#333" stroke="#666" stroke-width="1"/>
+
+  <!-- Light lens -->
+  <ellipse cx="16" cy="12" rx="6" ry="4" fill="#222" stroke="#444" stroke-width="1"/>
+  <ellipse cx="16" cy="12" rx="4" ry="2.5" fill="#111"/>
+
+  <!-- Light beam -->
+  <path d="M10 12 L4 8 L4 16 L10 12" fill="#444" opacity="0.3"/>
+  <path d="M22 12 L28 8 L28 16 L22 12" fill="#444" opacity="0.3"/>
+
+  <!-- Mounting bracket -->
+  <rect x="14" y="18" width="4" height="6" fill="#666"/>
+  <rect x="15" y="24" width="2" height="2" fill="#888"/>
+
+  <!-- Power cable -->
+  <path d="M24 12 L30 12" stroke="#666" stroke-width="2" fill="none"/>
+  <circle cx="30" cy="12" r="1" fill="#888"/>
+</svg>

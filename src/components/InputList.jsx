@@ -49,7 +49,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                 channel: channel,
                 inputNumber: inputNumber++,
                 name: `${item.name} ${channel}`,
-                nickname: "",
+                nickname: item.nickname || "",
                 gearModel: "",
                 notes: "",
                 isStereo: inputConfig.isStereo,
@@ -65,6 +65,21 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
 
       return newInputs;
     });
+  }, [stageItems]);
+
+  // Sync nicknames from stage items to inputs
+  useEffect(() => {
+    setInputs((prevInputs) =>
+      prevInputs.map((input) => {
+        const stageItem = stageItems.find(
+          (item) => item.id === input.stageItemId
+        );
+        if (stageItem && stageItem.nickname !== input.nickname) {
+          return { ...input, nickname: stageItem.nickname || "" };
+        }
+        return input;
+      })
+    );
   }, [stageItems]);
 
   const getInputConfig = (instrumentName) => {
@@ -114,10 +129,10 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         canToggleStereo: true,
       },
       "FX Unit": {
-        channels: ["FX"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
+        channels: ["L", "R"],
+        isStereo: true,
+        isGrouped: true,
+        canToggleStereo: true,
       },
       "Bass Guitar": {
         channels: ["Bass"],
@@ -334,6 +349,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
     setDraggedInput(input);
     setDraggedGroup(null);
     e.dataTransfer.effectAllowed = "move";
+    e.stopPropagation();
   };
 
   const handleGroupDragStart = (e, groupId) => {
@@ -344,10 +360,12 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
     setDraggedGroup(groupId);
     setDraggedInput(null);
     e.dataTransfer.effectAllowed = "move";
+    e.stopPropagation();
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDragLeave = () => {
@@ -356,6 +374,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
 
   const handleDrop = (e, targetInput) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!draggedInput || !targetInput) return;
 
     setInputs((prev) => {
@@ -391,6 +410,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
 
   const handleGroupDrop = (e, targetGroupId) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!draggedGroup || !targetGroupId) return;
 
     setInputs((prev) => {
@@ -443,6 +463,15 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
           input.id === editingInput.id ? editingInput : input
         )
       );
+
+      // Update the stage item nickname if it changed
+      if (onInputUpdate) {
+        onInputUpdate({
+          stageItemId: editingInput.stageItemId,
+          nickname: editingInput.nickname,
+        });
+      }
+
       setEditingInput(null);
     }
   };

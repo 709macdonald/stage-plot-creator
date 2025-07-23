@@ -1,0 +1,35 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main console body -->
+  <rect x="2" y="8" width="28" height="16" rx="2" fill="#333" stroke="#666" stroke-width="1"/>
+
+  <!-- Console surface -->
+  <rect x="3" y="9" width="26" height="14" rx="1" fill="#555"/>
+
+  <!-- Channel strips -->
+  <rect x="4" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="7" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="10" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="13" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="16" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="19" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="22" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+  <rect x="25" y="10" width="2" height="12" fill="#222" stroke="#444" stroke-width="0.5"/>
+
+  <!-- Faders -->
+  <rect x="4.5" y="16" width="1" height="4" fill="#888"/>
+  <rect x="7.5" y="17" width="1" height="3" fill="#888"/>
+  <rect x="10.5" y="15" width="1" height="5" fill="#888"/>
+  <rect x="13.5" y="18" width="1" height="2" fill="#888"/>
+  <rect x="16.5" y="16" width="1" height="4" fill="#888"/>
+  <rect x="19.5" y="17" width="1" height="3" fill="#888"/>
+  <rect x="22.5" y="15" width="1" height="5" fill="#888"/>
+  <rect x="25.5" y="18" width="1" height="2" fill="#888"/>
+
+  <!-- Master section -->
+  <rect x="28" y="10" width="2" height="12" fill="#444" stroke="#666" stroke-width="0.5"/>
+  <rect x="28.5" y="16" width="1" height="4" fill="#888"/>
+
+  <!-- Display screen -->
+  <rect x="4" y="11" width="24" height="3" fill="#111" stroke="#333" stroke-width="0.5"/>
+  <rect x="5" y="12" width="22" height="1" fill="#007acc"/>
+</svg>

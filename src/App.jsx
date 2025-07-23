@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import "./App.css";
 import InstrumentPalette from "./components/InstrumentPalette.jsx";
 import Stage from "./components/Stage.jsx";
-import InputList from "./components/InputList.jsx";
+import TabbedLists from "./components/TabbedLists.jsx";
 import BoomMicStand from "./SVGIcons/BoomMicStand.svg?react";
 import RoundBaseMicStand from "./SVGIcons/RoundBaseMicStand.svg?react";
 import DIBox from "./SVGIcons/DIbox.svg?react";
@@ -20,6 +20,13 @@ import JazzGuitar from "./SVGIcons/JazzGuitar.svg?react";
 import DrumKit from "./SVGIcons/DrumKit.svg?react";
 import ElectricGuitar from "./SVGIcons/ElectricGuitar.svg?react";
 import AcousticGuitar from "./SVGIcons/AcousticGuitar.svg?react";
+import InEarMonitors from "./SVGIcons/InEarMonitors.svg?react";
+import FloorMonitor from "./SVGIcons/FloorMonitor.svg?react";
+import PA_Speaker from "./SVGIcons/PA_Speaker.svg?react";
+import XLR_Cable from "./SVGIcons/XLR_Cable.svg?react";
+import QuarterInch_Cable from "./SVGIcons/QuarterInch_Cable.svg?react";
+import StageLight from "./SVGIcons/StageLight.svg?react";
+import MixingConsole from "./SVGIcons/MixingConsole.svg?react";
 
 const INSTRUMENT_CATEGORIES = [
   {
@@ -105,6 +112,54 @@ const INSTRUMENT_CATEGORIES = [
       },
     ],
   },
+  {
+    name: "Monitors",
+    items: [
+      {
+        name: "In-Ear Monitors",
+        icon: <InEarMonitors style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Floor Monitor",
+        icon: <FloorMonitor style={{ width: 32, height: 32 }} />,
+      },
+    ],
+  },
+  {
+    name: "PA System",
+    items: [
+      {
+        name: "PA Speaker",
+        icon: <PA_Speaker style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Mixing Console",
+        icon: <MixingConsole style={{ width: 32, height: 32 }} />,
+      },
+    ],
+  },
+  {
+    name: "Cables",
+    items: [
+      {
+        name: "XLR Cable",
+        icon: <XLR_Cable style={{ width: 32, height: 32 }} />,
+      },
+      {
+        name: "Quarter Inch Cable",
+        icon: <QuarterInch_Cable style={{ width: 32, height: 32 }} />,
+      },
+    ],
+  },
+  {
+    name: "Lighting",
+    items: [
+      {
+        name: "Stage Light",
+        icon: <StageLight style={{ width: 32, height: 32 }} />,
+      },
+    ],
+  },
 ];
 
 function App() {
@@ -138,6 +193,7 @@ function App() {
           x,
           y,
           size: 32,
+          nickname: "",
         },
       ]);
       setSelectedInstrument(null);
@@ -234,6 +290,18 @@ function App() {
     setStageItems((items) => items.filter((item) => item.id !== id));
   };
 
+  // Handle input updates (including nickname updates)
+  const handleInputUpdate = (inputData) => {
+    setStageItems((items) =>
+      items.map((item) => {
+        if (item.id === inputData.stageItemId) {
+          return { ...item, nickname: inputData.nickname };
+        }
+        return item;
+      })
+    );
+  };
+
   // When clicking an icon, select it
   const handleIconMouseDown = (e, id) => {
     e.stopPropagation();
@@ -294,8 +362,9 @@ function App() {
           />
         </div>
         <div className="right-panel">
-          <InputList
+          <TabbedLists
             stageItems={stageItems}
+            onInputUpdate={handleInputUpdate}
             onRemoveFromStage={(stageItemId) => {
               setStageItems((items) =>
                 items.filter((item) => item.id !== stageItemId)
