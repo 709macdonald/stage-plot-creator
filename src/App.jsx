@@ -249,7 +249,14 @@ function App() {
           />
         </div>
         <div className="right-panel">
-          <InputList stageItems={stageItems} />
+          <InputList
+            stageItems={stageItems}
+            onRemoveFromStage={(stageItemId) => {
+              setStageItems((items) =>
+                items.filter((item) => item.id !== stageItemId)
+              );
+            }}
+          />
         </div>
       </div>
       <p style={{ marginTop: 16, color: "#888" }}>

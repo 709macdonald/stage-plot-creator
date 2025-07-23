@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./InputList.css";
 
-const InputList = ({ stageItems, onInputUpdate }) => {
+const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   const [inputs, setInputs] = useState([]);
   const [editingInput, setEditingInput] = useState(null);
   const [draggedInput, setDraggedInput] = useState(null);
-  const [dragOverGroup, setDragOverGroup] = useState(null);
+  const [draggedGroup, setDraggedGroup] = useState(null);
 
   // Generate inputs based on stage items
   useEffect(() => {
@@ -27,8 +27,10 @@ const InputList = ({ stageItems, onInputUpdate }) => {
             name: `${item.name} ${channel}`,
             notes: "",
             isStereo: inputConfig.isStereo,
-            groupId: groupId,
+            groupId: inputConfig.isGrouped ? groupId : null,
             isGrouped: inputConfig.isGrouped,
+            canToggleStereo: inputConfig.canToggleStereo,
+            isNaturalMultiInput: inputConfig.isGrouped, // Track if this is a naturally multi-input instrument
           });
         });
       }
@@ -39,8 +41,18 @@ const InputList = ({ stageItems, onInputUpdate }) => {
 
   const getInputConfig = (instrumentName) => {
     const configs = {
-      Keyboard: { channels: ["L", "R"], isStereo: true, isGrouped: true },
-      "Grand Piano": { channels: ["L", "R"], isStereo: true, isGrouped: true },
+      Keyboard: {
+        channels: ["L", "R"],
+        isStereo: true,
+        isGrouped: true,
+        canToggleStereo: true,
+      },
+      "Grand Piano": {
+        channels: ["L", "R"],
+        isStereo: true,
+        isGrouped: true,
+        canToggleStereo: true,
+      },
       "Drum Kit": {
         channels: [
           "Kick",
@@ -53,38 +65,154 @@ const InputList = ({ stageItems, onInputUpdate }) => {
         ],
         isStereo: false,
         isGrouped: true,
+        canToggleStereo: false,
       },
-      "Shure 57": { channels: ["Mic"], isStereo: false, isGrouped: false },
-      "Shure 58": { channels: ["Mic"], isStereo: false, isGrouped: false },
-      "DI Box": { channels: ["DI"], isStereo: false, isGrouped: false },
-      "FX Unit": { channels: ["FX"], isStereo: false, isGrouped: false },
-      "Bass Guitar": { channels: ["Bass"], isStereo: false, isGrouped: false },
+      "Shure 57": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Shure 58": {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "DI Box": {
+        channels: ["DI"],
+        isStereo: false,
+        isGrouped: true,
+        canToggleStereo: true,
+      },
+      "FX Unit": {
+        channels: ["FX"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
+      "Bass Guitar": {
+        channels: ["Bass"],
+        isStereo: false,
+        isGrouped: true,
+        canToggleStereo: true,
+      },
       "Jazz Guitar": {
         channels: ["Guitar"],
         isStereo: false,
-        isGrouped: false,
+        isGrouped: true,
+        canToggleStereo: true,
       },
       "Electric Guitar": {
         channels: ["Guitar"],
         isStereo: false,
-        isGrouped: false,
+        isGrouped: true,
+        canToggleStereo: true,
       },
       "Acoustic Guitar": {
         channels: ["Guitar"],
         isStereo: false,
-        isGrouped: false,
+        isGrouped: true,
+        canToggleStereo: true,
       },
-      Saxophone: { channels: ["Mic"], isStereo: false, isGrouped: false },
+      Saxophone: {
+        channels: ["Mic"],
+        isStereo: false,
+        isGrouped: false,
+        canToggleStereo: false,
+      },
     };
     return configs[instrumentName];
   };
 
   const removeInput = (inputId) => {
-    setInputs((prev) => prev.filter((input) => input.id !== inputId));
-    // Renumber remaining inputs
-    setInputs((prev) =>
-      prev.map((input, index) => ({ ...input, inputNumber: index + 1 }))
-    );
+    setInputs((prev) => {
+      const inputToRemove = prev.find((input) => input.id === inputId);
+      if (!inputToRemove) return prev;
+
+      // Check if this is the last input for this instrument
+      const remainingInputsForInstrument = prev.filter(
+        (input) =>
+          input.id !== inputId &&
+          input.stageItemId === inputToRemove.stageItemId
+      );
+
+      // If this is the last input for the instrument, remove it from stage
+      if (remainingInputsForInstrument.length === 0 && onRemoveFromStage) {
+        onRemoveFromStage(inputToRemove.stageItemId);
+      }
+
+      const filtered = prev.filter((input) => input.id !== inputId);
+      return filtered.map((input, index) => ({
+        ...input,
+        inputNumber: index + 1,
+      }));
+    });
+  };
+
+  const addChannelToGroup = (groupId) => {
+    setInputs((prev) => {
+      const groupInputs = prev.filter((input) => input.groupId === groupId);
+      if (groupInputs.length === 0) return prev;
+
+      const firstInput = groupInputs[0];
+      const existingChannels = groupInputs.map((input) => input.channel);
+
+      // Determine the next channel name based on instrument type
+      let newChannel;
+      if (firstInput.instrumentName === "Drum Kit") {
+        // For drums, add numbered channels
+        const drumChannels = [
+          "Kick",
+          "Snare",
+          "Hi-Hat",
+          "Tom 1",
+          "Tom 2",
+          "Overhead L",
+          "Overhead R",
+        ];
+        const usedDrumChannels = existingChannels.filter((ch) =>
+          drumChannels.includes(ch)
+        );
+        const availableChannels = drumChannels.filter(
+          (ch) => !usedDrumChannels.includes(ch)
+        );
+        newChannel =
+          availableChannels[0] || `Extra ${existingChannels.length + 1}`;
+      } else if (
+        firstInput.instrumentName === "Keyboard" ||
+        firstInput.instrumentName === "Grand Piano"
+      ) {
+        // For keyboards, add C (Center) for LCR, or numbered channels
+        if (!existingChannels.includes("C")) {
+          newChannel = "C";
+        } else {
+          newChannel = `Extra ${existingChannels.length + 1}`;
+        }
+      } else {
+        // For other instruments, just add numbered channels
+        newChannel = `Extra ${existingChannels.length + 1}`;
+      }
+
+      const newInput = {
+        id: `${firstInput.stageItemId}-${firstInput.instrumentName}-${newChannel}`,
+        stageItemId: firstInput.stageItemId,
+        instrumentName: firstInput.instrumentName,
+        channel: newChannel,
+        inputNumber: prev.length + 1,
+        name: `${firstInput.instrumentName} ${newChannel}`,
+        notes: "",
+        isStereo: firstInput.isStereo,
+        groupId: groupId,
+        isGrouped: true,
+        canToggleStereo: firstInput.canToggleStereo,
+      };
+
+      return [...prev, newInput].map((input, index) => ({
+        ...input,
+        inputNumber: index + 1,
+      }));
+    });
   };
 
   const toggleStereo = (groupId) => {
@@ -133,15 +261,17 @@ const InputList = ({ stageItems, onInputUpdate }) => {
           .filter((i) => i.id !== otherInput.id)
           .map((i, index) => ({ ...i, inputNumber: index + 1 }));
       } else {
-        // Convert to stereo - add second channel
+        // Convert to stereo - add second channel and group them
+        const newChannel = input.channel === "L" ? "R" : "L";
         const newInput = {
           ...input,
-          id: `${input.stageItemId}-${input.instrumentName}-1`,
-          channel: input.channel === "L" ? "R" : "L",
+          id: `${input.stageItemId}-${input.instrumentName}-${newChannel}`,
+          channel: newChannel,
           inputNumber: input.inputNumber + 1,
-          name: `${input.instrumentName} ${input.channel === "L" ? "R" : "L"}`,
-          isGrouped: true,
+          name: `${input.instrumentName} ${newChannel}`,
+          isGrouped: true, // Always group stereo pairs
           groupId: `${input.stageItemId}-${input.instrumentName}`,
+          isNaturalMultiInput: input.isNaturalMultiInput,
         };
         return [...prev, newInput].map((i, index) => ({
           ...i,
@@ -153,51 +283,49 @@ const InputList = ({ stageItems, onInputUpdate }) => {
 
   const handleDragStart = (e, input) => {
     setDraggedInput(input);
+    setDraggedGroup(null);
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e, groupId) => {
+  const handleGroupDragStart = (e, groupId) => {
+    setDraggedGroup(groupId);
+    setDraggedInput(null);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e) => {
     e.preventDefault();
-    setDragOverGroup(groupId);
   };
 
   const handleDragLeave = () => {
-    setDragOverGroup(null);
+    // No longer needed
   };
 
-  const handleDrop = (e, targetGroupId) => {
+  const handleDrop = (e, targetInput) => {
     e.preventDefault();
-    if (!draggedInput) return;
+    if (!draggedInput || !targetInput) return;
 
     setInputs((prev) => {
       // Remove the dragged input from its current position
       const filtered = prev.filter((input) => input.id !== draggedInput.id);
 
-      // Find the target group and insert the input
-      const targetGroupIndex = filtered.findIndex(
-        (input) => input.groupId === targetGroupId
+      // Find the target input's position
+      const targetIndex = filtered.findIndex(
+        (input) => input.id === targetInput.id
       );
 
-      if (targetGroupIndex !== -1) {
-        // Insert into the middle of the group
-        const before = filtered.slice(0, targetGroupIndex);
-        const after = filtered.slice(targetGroupIndex);
-        const newInput = {
-          ...draggedInput,
-          groupId: targetGroupId,
-          isGrouped: true,
-        };
+      if (targetIndex !== -1) {
+        // Insert at the target position
+        const before = filtered.slice(0, targetIndex);
+        const after = filtered.slice(targetIndex);
+        const newInput = { ...draggedInput };
         return [...before, newInput, ...after].map((input, index) => ({
           ...input,
           inputNumber: index + 1,
         }));
       } else {
         // Insert at the end
-        const newInput = {
-          ...draggedInput,
-          groupId: targetGroupId,
-          isGrouped: true,
-        };
+        const newInput = { ...draggedInput };
         return [...filtered, newInput].map((input, index) => ({
           ...input,
           inputNumber: index + 1,
@@ -206,7 +334,46 @@ const InputList = ({ stageItems, onInputUpdate }) => {
     });
 
     setDraggedInput(null);
-    setDragOverGroup(null);
+  };
+
+  const handleGroupDrop = (e, targetGroupId) => {
+    e.preventDefault();
+    if (!draggedGroup || !targetGroupId) return;
+
+    setInputs((prev) => {
+      // Get all inputs from the dragged group
+      const draggedGroupInputs = prev.filter(
+        (input) => input.groupId === draggedGroup
+      );
+
+      // Remove all inputs from the dragged group
+      const filtered = prev.filter((input) => input.groupId !== draggedGroup);
+
+      // Find the first input in the target group
+      const targetGroupInputs = filtered.filter(
+        (input) => input.groupId === targetGroupId
+      );
+      let targetIndex = filtered.length; // Default to end
+
+      if (targetGroupInputs.length > 0) {
+        targetIndex = filtered.findIndex(
+          (input) => input.id === targetGroupInputs[0].id
+        );
+      }
+
+      // Insert all dragged group inputs at the target position
+      const before = filtered.slice(0, targetIndex);
+      const after = filtered.slice(targetIndex);
+
+      return [...before, ...draggedGroupInputs, ...after].map(
+        (input, index) => ({
+          ...input,
+          inputNumber: index + 1,
+        })
+      );
+    });
+
+    setDraggedGroup(null);
   };
 
   const startEditing = (input) => {
@@ -229,12 +396,14 @@ const InputList = ({ stageItems, onInputUpdate }) => {
   };
 
   const groupedInputs = inputs.reduce((groups, input) => {
+    // Group instruments that naturally have multiple inputs OR are stereo pairs
     if (input.isGrouped) {
       if (!groups[input.groupId]) {
         groups[input.groupId] = [];
       }
       groups[input.groupId].push(input);
     } else {
+      // Single input, not grouped
       groups[input.id] = [input];
     }
     return groups;
@@ -260,27 +429,51 @@ const InputList = ({ stageItems, onInputUpdate }) => {
         ) : (
           <div className="input-items">
             {Object.entries(groupedInputs).map(([groupId, groupInputs]) => (
-              <div key={groupId} className="input-group">
+              <div
+                key={groupId}
+                className={`input-group ${
+                  draggedGroup === groupId ? "dragging" : ""
+                }`}
+                draggable={groupInputs.length > 1}
+                onDragStart={(e) =>
+                  groupInputs.length > 1 && handleGroupDragStart(e, groupId)
+                }
+                onDragOver={(e) => handleDragOver(e)}
+                onDrop={(e) => {
+                  if (draggedGroup) {
+                    handleGroupDrop(e, groupId);
+                  } else if (draggedInput) {
+                    // Find the first input in this group to drop on
+                    const firstInput = groupInputs[0];
+                    handleDrop(e, firstInput);
+                  }
+                }}
+              >
                 {groupInputs.length > 1 && (
                   <div className="group-header">
                     <span className="group-name">
                       {groupInputs[0].instrumentName}
                     </span>
                     <button
-                      className="stereo-toggle"
-                      onClick={() => toggleStereo(groupId)}
-                      title={
-                        groupInputs.length === 2
-                          ? "Convert to Mono"
-                          : "Convert to Stereo"
-                      }
+                      className="add-channel-btn"
+                      onClick={() => addChannelToGroup(groupId)}
+                      title="Add channel to group"
                     >
-                      {groupInputs.length === 2 ? "STEREO" : "MONO"}
+                      +
                     </button>
                   </div>
                 )}
                 {groupInputs.map((input) => (
-                  <div key={input.id} className="input-item">
+                  <div
+                    key={input.id}
+                    className={`input-item ${
+                      draggedInput?.id === input.id ? "dragging" : ""
+                    }`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, input)}
+                    onDragOver={(e) => handleDragOver(e)}
+                    onDrop={(e) => handleDrop(e, input)}
+                  >
                     <div className="input-number">{input.inputNumber}</div>
                     <div className="input-icon">
                       <span className="channel-label">{input.channel}</span>
@@ -332,13 +525,28 @@ const InputList = ({ stageItems, onInputUpdate }) => {
                         )}
                       </div>
                     </div>
-                    <button
-                      className="remove-input"
-                      onClick={() => removeInput(input.id)}
-                      title="Remove input"
-                    >
-                      ×
-                    </button>
+                    <div className="input-actions">
+                      {input.canToggleStereo && (
+                        <button
+                          className="stereo-toggle-small"
+                          onClick={() => toggleInputStereo(input.id)}
+                          title={
+                            isStereoPair(input)
+                              ? "Convert to Mono"
+                              : "Convert to Stereo"
+                          }
+                        >
+                          {isStereoPair(input) ? "S" : "M"}
+                        </button>
+                      )}
+                      <button
+                        className="remove-input"
+                        onClick={() => removeInput(input.id)}
+                        title="Remove input"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
