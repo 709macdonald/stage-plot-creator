@@ -88,20 +88,25 @@ const OutputList = ({ stageItems, onOutputUpdate, onRemoveFromStage }) => {
 
   const getOutputConfig = (instrumentName) => {
     const configs = {
-      "In-Ear Monitors": {
+      "In-Ear Monitors and Headphones": {
         channels: ["L", "R"],
         isStereo: true,
         isGrouped: true,
       },
-      "Floor Monitor": {
+      "Wedge Monitor": {
         channels: ["Monitor"],
         isStereo: false,
         isGrouped: false,
       },
-      "PA Speaker": {
+      "FOH Speaker": {
         channels: ["L", "R"],
         isStereo: true,
         isGrouped: true,
+      },
+      Subwoofer: {
+        channels: ["Sub"],
+        isStereo: false,
+        isGrouped: false,
       },
     };
     return configs[instrumentName];
@@ -192,6 +197,7 @@ const OutputList = ({ stageItems, onOutputUpdate, onRemoveFromStage }) => {
   };
 
   const handleGroupDragStart = (e, groupId) => {
+    console.log("Output group drag start:", groupId);
     setDraggedGroup(groupId);
     setDraggedOutput(null);
     e.dataTransfer.effectAllowed = "move";
@@ -240,6 +246,7 @@ const OutputList = ({ stageItems, onOutputUpdate, onRemoveFromStage }) => {
   };
 
   const handleGroupDrop = (e, targetGroupId) => {
+    console.log("Output group drop:", draggedGroup, "->", targetGroupId);
     e.preventDefault();
     e.stopPropagation();
     if (!draggedGroup || !targetGroupId) return;
@@ -352,9 +359,25 @@ const OutputList = ({ stageItems, onOutputUpdate, onRemoveFromStage }) => {
               draggedGroup === groupId ? "dragging" : ""
             }`}
             draggable={groupOutputs.length > 1}
-            onDragStart={(e) => handleGroupDragStart(e, groupId)}
+            onDragStart={(e) => {
+              console.log(
+                "Output group drag start triggered, length:",
+                groupOutputs.length
+              );
+              if (groupOutputs.length > 1) {
+                handleGroupDragStart(e, groupId);
+              }
+            }}
             onDragOver={(e) => handleDragOver(e)}
-            onDrop={(e) => handleGroupDrop(e, groupId)}
+            onDrop={(e) => {
+              if (draggedGroup) {
+                handleGroupDrop(e, groupId);
+              } else if (draggedOutput) {
+                // Find the first output in this group to drop on
+                const firstOutput = groupOutputs[0];
+                handleDrop(e, firstOutput);
+              }
+            }}
           >
             {groupOutputs.map((output) => (
               <div

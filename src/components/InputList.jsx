@@ -124,60 +124,6 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         isGrouped: false,
         canToggleStereo: false,
       },
-      "Shure Beta 52": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Shure Beta 91": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "AKG C414": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Neumann U87": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Sennheiser MD421": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Audio Technica ATM25": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Electro-Voice RE20": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Blue Yeti": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
-      "Shure SM7B": {
-        channels: ["Mic"],
-        isStereo: false,
-        isGrouped: false,
-        canToggleStereo: false,
-      },
       "DI Box": {
         channels: ["DI"],
         isStereo: false,
@@ -219,6 +165,12 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
         isStereo: false,
         isGrouped: false,
         canToggleStereo: false,
+      },
+      Stereodi: {
+        channels: ["L", "R"],
+        isStereo: true,
+        isGrouped: true,
+        canToggleStereo: true,
       },
     };
     return configs[instrumentName];
@@ -461,6 +413,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const handleGroupDragStart = (e, groupId) => {
+    console.log("Group drag start:", groupId);
     // Save any current edit before starting group drag
     if (editingInput) {
       saveEdit();
@@ -517,6 +470,7 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
   };
 
   const handleGroupDrop = (e, targetGroupId) => {
+    console.log("Group drop:", draggedGroup, "->", targetGroupId);
     e.preventDefault();
     e.stopPropagation();
     if (!draggedGroup || !targetGroupId) return;
@@ -650,9 +604,15 @@ const InputList = ({ stageItems, onInputUpdate, onRemoveFromStage }) => {
                   draggedGroup === groupId ? "dragging" : ""
                 }`}
                 draggable={groupInputs.length > 1}
-                onDragStart={(e) =>
-                  groupInputs.length > 1 && handleGroupDragStart(e, groupId)
-                }
+                onDragStart={(e) => {
+                  console.log(
+                    "Group drag start triggered, length:",
+                    groupInputs.length
+                  );
+                  if (groupInputs.length > 1) {
+                    handleGroupDragStart(e, groupId);
+                  }
+                }}
                 onDragOver={(e) => handleDragOver(e)}
                 onDrop={(e) => {
                   if (draggedGroup) {

@@ -42,6 +42,11 @@
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
+  cursor: grab;
+}
+
+.input-group:active {
+  cursor: grabbing;
 }
 
 .input-group.drag-over {
